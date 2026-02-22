@@ -49,7 +49,7 @@ Coming soon after deployment
 ### Clone the repository
 ```bash
 git clone https://github.com/prachurja99/SpendSmart.git
-cd spendsmart
+cd SpendSmart
 ```
 
 ### Setup Backend
