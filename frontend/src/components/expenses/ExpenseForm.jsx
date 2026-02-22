@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import api from '../../utils/api'
 import toast from 'react-hot-toast'
-import { PlusCircle, Save } from 'lucide-react'
+import { PlusCircle, Save, Sparkles } from 'lucide-react'
 
 const CATEGORIES = ['Food', 'Transport', 'Shopping', 'Health', 'Entertainment', 'Education', 'Bills', 'Other']
 
@@ -14,6 +14,7 @@ const ExpenseForm = ({ onSuccess, editingExpense, onClose }) => {
     note: '',
   })
   const [loading, setLoading] = useState(false)
+  const [aiLoading, setAiLoading] = useState(false)
 
   useEffect(() => {
     if (editingExpense) {
@@ -29,6 +30,23 @@ const ExpenseForm = ({ onSuccess, editingExpense, onClose }) => {
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
+  }
+
+  const handleAISuggest = async () => {
+    if (!form.title.trim()) {
+      toast.error('Please enter a title first')
+      return
+    }
+    setAiLoading(true)
+    try {
+      const { data } = await api.post('/ai/suggest-category', { title: form.title })
+      setForm({ ...form, category: data.category })
+      toast.success(`AI suggested: ${data.category}`)
+    } catch (error) {
+      toast.error('AI suggestion failed')
+    } finally {
+      setAiLoading(false)
+    }
   }
 
   const handleSubmit = async (e) => {
@@ -60,15 +78,27 @@ const ExpenseForm = ({ onSuccess, editingExpense, onClose }) => {
         <div style={styles.grid}>
           <div style={styles.inputGroup}>
             <label style={styles.label}>Title</label>
-            <input
-              type="text"
-              name="title"
-              placeholder="e.g. Lunch at restaurant"
-              value={form.title}
-              onChange={handleChange}
-              required
-              style={styles.input}
-            />
+            <div style={styles.titleRow}>
+              <input
+                type="text"
+                name="title"
+                placeholder="e.g. Lunch at restaurant"
+                value={form.title}
+                onChange={handleChange}
+                required
+                style={styles.input}
+              />
+              <button
+                type="button"
+                onClick={handleAISuggest}
+                disabled={aiLoading}
+                style={styles.aiBtn}
+                title="AI Suggest Category"
+              >
+                <Sparkles size={16} />
+                {aiLoading ? 'Thinking...' : 'AI'}
+              </button>
+            </div>
           </div>
 
           <div style={styles.inputGroup}>
@@ -87,7 +117,12 @@ const ExpenseForm = ({ onSuccess, editingExpense, onClose }) => {
           </div>
 
           <div style={styles.inputGroup}>
-            <label style={styles.label}>Category</label>
+            <label style={styles.label}>
+              Category
+              {form.category !== 'Other' && (
+                <span style={styles.aiTag}>✨ AI</span>
+              )}
+            </label>
             <select
               name="category"
               value={form.category}
@@ -171,6 +206,22 @@ const styles = {
     color: '#94a3b8',
     textTransform: 'uppercase',
     letterSpacing: '0.5px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+  },
+  aiTag: {
+    fontSize: '11px',
+    background: 'linear-gradient(135deg, #6366f1, #22d3ee)',
+    color: 'white',
+    padding: '1px 6px',
+    borderRadius: '4px',
+    fontWeight: '600',
+  },
+  titleRow: {
+    display: 'flex',
+    gap: '8px',
+    alignItems: 'center',
   },
   input: {
     padding: '10px 14px',
@@ -181,6 +232,20 @@ const styles = {
     fontSize: '14px',
     outline: 'none',
     width: '100%',
+  },
+  aiBtn: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '4px',
+    padding: '10px 14px',
+    background: 'linear-gradient(135deg, #6366f1, #22d3ee)',
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    fontSize: '13px',
+    fontWeight: '600',
+    whiteSpace: 'nowrap',
+    flexShrink: 0,
   },
   buttons: {
     display: 'flex',

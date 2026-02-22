@@ -6,9 +6,18 @@ import SummaryCards from '../components/charts/SummaryCards'
 import SpendingChart from '../components/charts/SpendingChart'
 import api from '../utils/api'
 import toast from 'react-hot-toast'
-import { Plus, X } from 'lucide-react'
+import { Plus, X, ChevronLeft, ChevronRight } from 'lucide-react'
+
+const MONTHS = [
+  'January', 'February', 'March', 'April',
+  'May', 'June', 'July', 'August',
+  'September', 'October', 'November', 'December'
+]
 
 const Dashboard = () => {
+  const now = new Date()
+  const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1)
+  const [selectedYear, setSelectedYear] = useState(now.getFullYear())
   const [expenses, setExpenses] = useState([])
   const [summary, setSummary] = useState({ total: 0, byCategory: {}, count: 0 })
   const [loading, setLoading] = useState(true)
@@ -17,7 +26,9 @@ const Dashboard = () => {
 
   const fetchExpenses = async () => {
     try {
-      const { data } = await api.get('/expenses')
+      const { data } = await api.get('/expenses', {
+        params: { month: selectedMonth, year: selectedYear }
+      })
       setExpenses(data)
     } catch (error) {
       toast.error('Failed to fetch expenses')
@@ -26,7 +37,9 @@ const Dashboard = () => {
 
   const fetchSummary = async () => {
     try {
-      const { data } = await api.get('/expenses/summary')
+      const { data } = await api.get('/expenses/summary', {
+        params: { month: selectedMonth, year: selectedYear }
+      })
       setSummary(data)
     } catch (error) {
       toast.error('Failed to fetch summary')
@@ -36,9 +49,10 @@ const Dashboard = () => {
   }
 
   useEffect(() => {
+    setLoading(true)
     fetchExpenses()
     fetchSummary()
-  }, [])
+  }, [selectedMonth, selectedYear])
 
   const handleExpenseAdded = () => {
     fetchExpenses()
@@ -68,6 +82,24 @@ const Dashboard = () => {
     setEditingExpense(null)
   }
 
+  const handlePrevMonth = () => {
+    if (selectedMonth === 1) {
+      setSelectedMonth(12)
+      setSelectedYear(selectedYear - 1)
+    } else {
+      setSelectedMonth(selectedMonth - 1)
+    }
+  }
+
+  const handleNextMonth = () => {
+    if (selectedMonth === 12) {
+      setSelectedMonth(1)
+      setSelectedYear(selectedYear + 1)
+    } else {
+      setSelectedMonth(selectedMonth + 1)
+    }
+  }
+
   return (
     <div style={styles.page}>
       <Navbar />
@@ -84,6 +116,20 @@ const Dashboard = () => {
           >
             {showForm ? <X size={18} /> : <Plus size={18} />}
             {showForm ? 'Cancel' : 'Add Expense'}
+          </button>
+        </div>
+
+        <div style={styles.monthFilter}>
+          <button onClick={handlePrevMonth} style={styles.arrowBtn}>
+            <ChevronLeft size={20} />
+          </button>
+          <div style={styles.monthDisplay}>
+            <span style={styles.monthText}>
+              {MONTHS[selectedMonth - 1]} {selectedYear}
+            </span>
+          </div>
+          <button onClick={handleNextMonth} style={styles.arrowBtn}>
+            <ChevronRight size={20} />
           </button>
         </div>
 
@@ -131,7 +177,7 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '32px',
+    marginBottom: '24px',
   },
   title: {
     fontSize: '28px',
@@ -155,6 +201,37 @@ const styles = {
     fontSize: '14px',
     fontWeight: '600',
     boxShadow: '0 4px 15px rgba(99,102,241,0.3)',
+  },
+  monthFilter: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    marginBottom: '24px',
+    background: '#1e293b',
+    padding: '10px 16px',
+    borderRadius: '12px',
+    border: '1px solid #334155',
+    width: 'fit-content',
+  },
+  arrowBtn: {
+    background: '#0f172a',
+    border: '1px solid #334155',
+    borderRadius: '8px',
+    color: '#94a3b8',
+    padding: '6px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+  },
+  monthDisplay: {
+    minWidth: '160px',
+    textAlign: 'center',
+  },
+  monthText: {
+    fontSize: '16px',
+    fontWeight: '600',
+    color: '#f1f5f9',
   },
   formWrapper: {
     marginBottom: '24px',
