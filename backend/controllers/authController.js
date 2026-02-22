@@ -11,13 +11,11 @@ const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // Check if user already exists
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Create new user
     const user = await User.create({ name, email, password });
 
     res.status(201).json({
@@ -27,6 +25,8 @@ const registerUser = async (req, res) => {
       token: generateToken(user._id),
     });
   } catch (error) {
+    console.error('REGISTER ERROR:', error.message);
+    console.error('FULL ERROR:', error);
     res.status(500).json({ message: error.message });
   }
 };
