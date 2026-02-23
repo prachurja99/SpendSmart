@@ -115,4 +115,4 @@ SpendSmart/
 
 **Prachurja Bhattacharjee**
 Computer Science & Engineering Graduate — BRAC University
-[GitHub](https://github.com/prachurja99) | [LinkedIn](www.linkedin.com/in/prachurja-bhattacharjee-94568b281)
+[GitHub](https://github.com/prachurja99) | [LinkedIn](https://www.linkedin.com/in/prachurja-bhattacharjee-94568b281/)
