@@ -3,10 +3,15 @@
 A full-stack expense tracking web application with AI-powered categorization, interactive charts, monthly filtering, and PDF report generation.
 
 ## Live Demo
-Coming soon after deployment
+
+[https://spend-smart-ten-alpha.vercel.app](https://spend-smart-ten-alpha.vercel.app)
 
 ## Screenshots
-Coming soon after deployment
+
+
+### Dashboard
+![Dashboard](screenshots/dashboard1.png)
+
 
 ## Features
 
